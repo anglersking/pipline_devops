@@ -1,0 +1,51 @@
+version: '2.2'
+
+services:
+  jenkins:
+    container_name: jenkins_jdk11
+    image: jenkins/jenkins:jdk11
+    ports:
+      - 8080:8080
+      - 5030:5000
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    user: root
+    networks:
+      my_network:
+        ipv4_address: 172.47.1.2
+
+  postgresql:
+    container_name: postgresql
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 123456
+      LANG: C.UTF-8
+    volumes:
+      - postgre-data:/var/lib/postgresql/data
+    networks:
+      my_network:
+        ipv4_address: 172.47.1.3
+
+  jfrog:
+    container_name: jfrog
+    image: releases-docker.jfrog.io/jfrog/artifactory-pro:7.71.11
+    ports:
+      - 8081:8081
+      - 8082:8082
+    networks:
+      my_network:
+        ipv4_address: 172.47.1.4
+
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.47.1.0/16
+
+volumes:
+  postgre-data:
